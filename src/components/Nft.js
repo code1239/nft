@@ -1,23 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { Connection, clusterApiUrl, LAMPORTS_PER_SOL } from "@solana/web3.js";
+import {
+  Connection,
+  clusterApiUrl,
+  LAMPORTS_PER_SOL,
+  PublicKey,
+} from "@solana/web3.js";
 import {
   getParsedNftAccountsByOwner,
   isValidSolanaAddress,
-  createConnectionConfig,
 } from "@nfteyez/sol-rayz";
 import Collectible from "./Collectible";
 
 const Nft = (props) => {
   const [nftData, setNftData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const createConnection = () => {
-    return new Connection(clusterApiUrl("devnet"));
-  };
+  const [balance, setBalance] = useState(null);
+
   const getProvider = async () => {
     if ("solana" in window) {
       // opens wallet to connect to
       await window.solana.connect();
-
       const provider = window.solana;
       if (provider.isPhantom) {
         console.log("Is Phantom installed?  ", provider.isPhantom);
@@ -30,11 +32,18 @@ const Nft = (props) => {
   const getAllNftData = async () => {
     try {
       if (true) {
-        const connect = await createConnection();
         const provider = await getProvider();
         let ownerToken = provider.publicKey;
 
-        console.log(ownerToken);
+        //get balance
+        const connection = new Connection(clusterApiUrl("devnet"));
+        console.log("provider : ", provider.publicKey.toString());
+        let wallet = new PublicKey(ownerToken.toString());
+        console.log("WALLET  : ", wallet);
+        let balance = await connection.getBalance(wallet);
+        console.log(`${balance / LAMPORTS_PER_SOL} SOL`);
+        setBalance(balance);
+        //finish
         const result = isValidSolanaAddress(ownerToken);
         console.log("result", result);
         const nfts = await getParsedNftAccountsByOwner({
@@ -64,6 +73,7 @@ const Nft = (props) => {
             <div className="col-12">
               <h4 className="title">NFT</h4>
             </div>
+            <h3>{balance} SOL</h3>
           </div>
           <div className="row  d-flex justify-content-center">
             {loading ? (

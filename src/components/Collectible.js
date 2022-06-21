@@ -4,10 +4,13 @@ import { useState } from "react";
 import { useEffect } from "react";
 const Collectible = ({ val }) => {
   const [image, setImage] = useState(null);
+  const [description, setDescription] = useState("");
+  const [name, setName] = useState("");
   const getImage = async () => {
     const fetch = await axios(val.data.uri);
-    const image = fetch.data.image;
-    setImage(image);
+    setName(fetch.data.name);
+    setDescription(fetch.data.description);
+    setImage(fetch.data.image);
   };
   useEffect(() => {
     getImage();
@@ -22,8 +25,15 @@ const Collectible = ({ val }) => {
             className="rounded float-start w-100"
             alt="loading..."
           />
-          <p className="mt-1">{val.data.name}</p>
+          <h3>Name</h3>
+          <p className="mt-1">{name}</p>
+          <h3>Description</h3>
+          <p>{description}</p>
           <h6 className=" mt-2">{val.data.description}</h6>
+          <h5>Creators</h5>
+          {val.data.creators.map((creator, index) => (
+            <p key={index}>{creator.address}</p>
+          ))}
         </div>
       </div>
     </div>
