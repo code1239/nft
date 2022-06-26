@@ -10,7 +10,6 @@ import {
   isValidSolanaAddress,
 } from "@nfteyez/sol-rayz";
 import Collectible from "./Collectible";
-
 const Nft = (props) => {
   const [nftData, setNftData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -18,9 +17,9 @@ const Nft = (props) => {
 
   const getProvider = async () => {
     if ("solana" in window) {
-      // opens wallet to connect to
       await window.solana.connect();
       const provider = window.solana;
+
       if (provider.isPhantom) {
         console.log("Is Phantom installed?  ", provider.isPhantom);
         return provider;
@@ -31,26 +30,30 @@ const Nft = (props) => {
   };
   const getAllNftData = async () => {
     try {
-      if (true) {
-        const provider = await getProvider();
-        let ownerToken = provider.publicKey;
+      const provider = await getProvider();
+      let ownerToken = provider.publicKey;
 
-        //get balance
-        const connection = new Connection(clusterApiUrl("devnet"));
-        console.log("provider : ", provider.publicKey.toString());
-        let wallet = new PublicKey(ownerToken.toString());
-        console.log("WALLET  : ", wallet);
-        let balance = await connection.getBalance(wallet);
-        console.log(`${balance / LAMPORTS_PER_SOL} SOL`);
-        setBalance(balance);
-        //finish
-        const result = isValidSolanaAddress(ownerToken);
-        console.log("result", result);
-        const nfts = await getParsedNftAccountsByOwner({
-          publicAddress: ownerToken,
-        });
-        return nfts;
-      }
+      //get balance
+      const connection = new Connection(
+        clusterApiUrl("mainnet-beta"),
+        "confirmed"
+      );
+      connection.getBalance(provider.publicKey).then(function (value) {
+        console.log("VALUEEE : ", value);
+      });
+      console.log("provider : ", provider.publicKey.toString());
+      let wallet = new PublicKey(ownerToken.toString());
+      console.log("WALLET  : ", wallet);
+      let balance = await connection.getBalance(wallet);
+      console.log(`${balance / LAMPORTS_PER_SOL} SOL`);
+      setBalance(balance);
+      //finish
+      const result = isValidSolanaAddress(ownerToken);
+      console.log("result", result);
+      const nfts = await getParsedNftAccountsByOwner({
+        publicAddress: ownerToken,
+      });
+      return nfts;
     } catch (error) {
       console.log("HAYATATATTAATA");
       console.log(error);
@@ -73,7 +76,7 @@ const Nft = (props) => {
             <div className="col-12">
               <h4 className="title">NFT</h4>
             </div>
-            <h3>{balance} SOL</h3>
+            <h3>{balance / LAMPORTS_PER_SOL} SOL</h3>
           </div>
           <div className="row  d-flex justify-content-center">
             {loading ? (
